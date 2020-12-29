@@ -1,2 +1,2 @@
 # eliza
-Lightweight music library manager and mpd client.
+Lightweight mpd client based on [booker](https://github.com/booker).
