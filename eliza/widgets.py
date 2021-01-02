@@ -9,3 +9,13 @@ class ArtistList(QListWidget):
         for artist in data:
             item = QListWidgetItem("%s" % artist)
             self.addItem(item)
+
+class AlbumList(QListWidget):
+    def __init__(self):
+        super().__init__()
+    
+    def fill(self, data):
+        self.clear()
+        for album in data:
+            item = QListWidgetItem("%s" % album['album'])
+            self.addItem(item)

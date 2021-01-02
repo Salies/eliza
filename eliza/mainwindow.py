@@ -4,24 +4,38 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
 from eliza.widgets import *
+from eliza.bkread import Booker
 
 class MainWindow(QMainWindow):
-    def __init__(self, manager):
+    def __init__(self, bkdir):
         super().__init__()
 
+        #basic values
         self.setWindowTitle('Eliza')
         centralWidget = QWidget() #central widget
         self.layout = QVBoxLayout() #main layout, shared
         centralWidget.setLayout(self.layout)
         self.setCentralWidget(centralWidget)
 
+        #booker
+        self.bkr = Booker(bkdir)
+
         #initializing the ui
         self.bar = self.menuBar()
+        self.initUi()
+
+    def initUi(self):
         self.createToolbar()
         self.createSearchbar()
         self.createGridList()
         self.createPlaybar()
         self.createStatusbar()
+
+        self.artists.fill(self.bkr.getArtists())
+        self.artists.itemClicked.connect(self.fillAlbums)
+
+    def fillAlbums(self, item):
+        self.albums.fill(self.bkr.getArtistAlbums(item.text()))
 
     def createGridList(self):
         libraryLayout = QHBoxLayout()
@@ -42,7 +56,7 @@ class MainWindow(QMainWindow):
         caLayout.setAlignment(Qt.AlignTop)
 
         self.artists = ArtistList()
-        albums = QListWidget()
+        self.albums = AlbumList()
         songs = QListWidget()
         queueWidget = QListWidget()
 
@@ -50,7 +64,7 @@ class MainWindow(QMainWindow):
         artistsLayout.addWidget(self.artists)
 
         albumsLayout.addWidget(albumsLabel)
-        albumsLayout.addWidget(albums)
+        albumsLayout.addWidget(self.albums)
 
         songsLayout.addWidget(songsLabel)
         songsLayout.addWidget(songs)
@@ -66,7 +80,7 @@ class MainWindow(QMainWindow):
         npLayout.addLayout(caLayout)
         npLayout.addLayout(queueLayout)
 
-        albums.addItem("All Albums")
+        self.albums.addItem("All Albums")
         songs.addItem("1. Kuolevainen")
         
         libraryLayout.addLayout(artistsLayout)
@@ -160,7 +174,6 @@ class MainWindow(QMainWindow):
     
     #signals
     #@pyqtSlot(list)
-    #def artistFetch(data):
-    #    print('CAPTEI A MENSAGEM')
-        #self.artists.fill(data)
+    #def albumartistFetch(artist):
+    #    print('CAPTEI A MENSAGEM:' + artist)
     #    pass
