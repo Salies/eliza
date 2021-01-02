@@ -3,9 +3,11 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
+from eliza.widgets import *
+
 class MainWindow(QMainWindow):
-    def __init__(self, *args, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
+    def __init__(self):
+        super().__init__()
 
         self.setWindowTitle('Eliza')
         centralWidget = QWidget() #central widget
@@ -39,13 +41,13 @@ class MainWindow(QMainWindow):
 
         caLayout.setAlignment(Qt.AlignTop)
 
-        artists = QListWidget()
+        self.artists = ArtistList()
         albums = QListWidget()
         songs = QListWidget()
         queueWidget = QListWidget()
 
         artistsLayout.addWidget(artistsLabel)
-        artistsLayout.addWidget(artists)
+        artistsLayout.addWidget(self.artists)
 
         albumsLayout.addWidget(albumsLabel)
         albumsLayout.addWidget(albums)
@@ -64,7 +66,6 @@ class MainWindow(QMainWindow):
         npLayout.addLayout(caLayout)
         npLayout.addLayout(queueLayout)
 
-        artists.addItem("All Artists")
         albums.addItem("All Albums")
         songs.addItem("1. Kuolevainen")
         
@@ -156,3 +157,10 @@ class MainWindow(QMainWindow):
         statusbar = QStatusBar()
         statusbar.showMessage('salve salve')
         self.layout.addWidget(statusbar)
+    
+    #signals
+    #@pyqtSlot(list)
+    #def artistFetch(data):
+    #    print('CAPTEI A MENSAGEM')
+        #self.artists.fill(data)
+    #    pass
