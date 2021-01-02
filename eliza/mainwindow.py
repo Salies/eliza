@@ -18,17 +18,18 @@ class MainWindow(QMainWindow):
         self.createToolbar()
         self.createSearchbar()
         self.createGridList()
+        self.createPlaybar()
         self.createStatusbar()
 
     def createGridList(self):
         libraryLayout = QHBoxLayout()
         npLayout = QHBoxLayout()
 
-        artistsLabel = QLabel("Artists")
-        albumsLabel = QLabel("Albums")
-        songsLabel = QLabel("Songs")
-        queueLabel = QLabel("Queue")
-        caLabel = QLabel("Now Playing")
+        artistsLabel = QLabel('Artists')
+        albumsLabel = QLabel('Albums')
+        songsLabel = QLabel('Songs')
+        queueLabel = QLabel('Queue')
+        caLabel = QLabel('Now Playing')
 
         artistsLayout = QVBoxLayout()
         albumsLayout = QVBoxLayout()
@@ -55,8 +56,8 @@ class MainWindow(QMainWindow):
         queueLayout.addWidget(queueLabel)
         queueLayout.addWidget(queueWidget)
 
-        coverart = QLabel(self)
-        coverart.setPixmap(QPixmap("resources/artplaceholder.jpg"))
+        coverart = QLabel()
+        coverart.setPixmap(QPixmap("resources/img/artplaceholder.jpg"))
         coverart.setMaximumSize(300, 300)
         caLayout.addWidget(caLabel)
         caLayout.addWidget(coverart)
@@ -94,6 +95,62 @@ class MainWindow(QMainWindow):
         searchbarLayout.addWidget(searchComboBox)
 
         self.layout.addLayout(searchbarLayout)
+
+    def createPlaybar(self):
+        buttonSize = QSize(32, 32)
+        icons = [['play', 'pause'], ['repeat', 'repeat_none', 'repeat_song'], ['shuffle'], 'forward', 'back']
+
+        seekLayout = QVBoxLayout()
+
+        playbarLayout = QHBoxLayout()
+        playIcon = QIcon('resources/icon/' + icons[0][0] + '.png')
+        playButton = QPushButton()
+        playButton.setIcon(playIcon)
+        playButton.setIconSize(buttonSize)
+
+        backIcon = QIcon('resources/icon/' + icons[4] + '.png')
+        backButton = QPushButton()
+        backButton.setIcon(backIcon)
+        backButton.setIconSize(buttonSize)
+
+        forwardIcon = QIcon('resources/icon/' + icons[3] + '.png')
+        forwardButton = QPushButton()
+        forwardButton.setIcon(forwardIcon)
+        forwardButton.setIconSize(buttonSize)
+
+        seekbar = QSlider(Qt.Horizontal)
+        seekLayout.addWidget(seekbar)
+
+        songTime = QLabel('0:00/0:00')
+        seekLayout.addWidget(songTime)
+
+        shuffleIcon = QIcon('resources/icon/' + icons[2][0] + '.png')
+        shuffleButton = QPushButton()
+        shuffleButton.setIcon(shuffleIcon)
+        shuffleButton.setIconSize(buttonSize)
+
+        repeatIcon = QIcon('resources/icon/' + icons[1][0] + '.png')
+        repeatButton = QPushButton()
+        repeatButton.setIcon(repeatIcon)
+        repeatButton.setIconSize(buttonSize)
+        
+        playbarLayout.addWidget(backButton)
+        playbarLayout.addWidget(playButton)
+        playbarLayout.addWidget(forwardButton)
+        playbarLayout.addLayout(seekLayout)
+        playbarLayout.addWidget(shuffleButton)
+        playbarLayout.addWidget(repeatButton)
+
+        volumeLabel = QLabel()
+        volumeLabel.setPixmap(QPixmap('resources/img/volume.png'))
+
+        volumebar = QSlider(Qt.Horizontal)
+        volumebar.setMaximumWidth(100);
+
+        playbarLayout.addWidget(volumeLabel)
+        playbarLayout.addWidget(volumebar)
+
+        self.layout.addLayout(playbarLayout)
 
     def createStatusbar(self):
         statusbar = QStatusBar()
