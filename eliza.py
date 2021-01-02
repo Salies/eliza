@@ -10,7 +10,7 @@ app = QApplication([])
 config = configparser.ConfigParser()
 config.read('eliza.conf') #TODO: ADD ERROR IF FILE DOESN'T EXIST
 
-window = MainWindow(config['dir']['booker'])
+window = MainWindow([config['dir']['booker'], config['mpd']])
 
 window.show()
 app.exec()

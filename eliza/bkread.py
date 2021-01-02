@@ -9,7 +9,9 @@ def formatData(data): #TODO: is this how private functions work?
 class Booker:
     def __init__(self, bkdir):
         print("eae")
-        conn = sqlite3.connect(Path(bkdir))
+        p = Path(bkdir)
+        self.datapath = str(p.parent)
+        conn = sqlite3.connect(p)
         conn.row_factory = sqlite3.Row
         self.c = conn.cursor()      
 

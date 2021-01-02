@@ -28,6 +28,9 @@ class TrackList(QListWidget):
     
     def fill(self, data):
         self.clear()
+        i = 0
         for track in data:
             item = QListWidgetItem("%s" % track['title'])
+            item.setData(Qt.UserRole, i)
             self.addItem(item)
+            i += 1

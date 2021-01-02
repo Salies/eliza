@@ -6,9 +6,12 @@ from PyQt5.QtCore import *
 
 from eliza.widgets import *
 from eliza.bkread import Booker
+from eliza.mpdmanager import MpdManager
+
+from os import path
 
 class MainWindow(QMainWindow):
-    def __init__(self, bkdir):
+    def __init__(self, data):
         super().__init__()
 
         #basic values
@@ -17,9 +20,14 @@ class MainWindow(QMainWindow):
         self.layout = QVBoxLayout() #main layout, shared
         centralWidget.setLayout(self.layout)
         self.setCentralWidget(centralWidget)
+        self.currentAlbum = []
+        self.coverart = QLabel()
 
         #booker
-        self.bkr = Booker(bkdir)
+        self.bkr = Booker(data[0])
+
+        #mpd
+        self.mpdmng = MpdManager(data[1])
 
         #initializing the ui
         self.bar = self.menuBar()
@@ -32,17 +40,31 @@ class MainWindow(QMainWindow):
         self.createPlaybar()
         self.createStatusbar()
         self.initSignals()
+        self.setStates()
+
+    def setStates(self):
+        initStatus = self.mpdmng.status()
+        #print(initStatus)
 
     def initSignals(self):
         self.artists.fill(self.bkr.getArtists())
         self.artists.itemClicked.connect(self.fillAlbums)
         self.albums.itemClicked.connect(self.fillTracks)
+        self.songs.itemDoubleClicked.connect(self.playAlbum)
 
     def fillAlbums(self, item):
         self.albums.fill(self.bkr.getArtistAlbums(item.text()))
 
     def fillTracks(self, item):
-        self.songs.fill(self.bkr.getAlbumTracks(item.data(Qt.UserRole)))
+        self.currentAlbum = self.bkr.getAlbumTracks(item.data(Qt.UserRole))
+        self.songs.fill(self.currentAlbum)
+
+    def playAlbum(self, item):
+        print('ALBUM ATUAL: %d' % self.currentAlbum[item.data(Qt.UserRole)]['albumid'])
+        self.mpdmng.playAlbum(self.currentAlbum, item.data(Qt.UserRole))
+        artPath = path.join(self.bkr.datapath, 'coverarts', str(self.currentAlbum[item.data(Qt.UserRole)]['albumid'])) + '.jpg'
+        print(artPath)
+        self.coverart.setPixmap(QPixmap(artPath))
 
     def createGridList(self):
         libraryLayout = QHBoxLayout()
@@ -79,11 +101,11 @@ class MainWindow(QMainWindow):
         queueLayout.addWidget(queueLabel)
         queueLayout.addWidget(queueWidget)
 
-        coverart = QLabel()
-        coverart.setPixmap(QPixmap("resources/img/artplaceholder.jpg"))
-        coverart.setMaximumSize(300, 300)
+        self.coverart.setPixmap(QPixmap("resources/img/artplaceholder.jpg"))
+        self.coverart.setMaximumSize(300, 300)
+        self.coverart.setScaledContents(True)
         caLayout.addWidget(caLabel)
-        caLayout.addWidget(coverart)
+        caLayout.addWidget(self.coverart)
         npLayout.addLayout(caLayout)
         npLayout.addLayout(queueLayout)
         
@@ -163,17 +185,18 @@ class MainWindow(QMainWindow):
         volumeLabel = QLabel()
         volumeLabel.setPixmap(QPixmap('resources/img/volume.png'))
 
-        volumebar = QSlider(Qt.Horizontal)
-        volumebar.setMaximumWidth(100);
+        self.volumebar = QSlider(Qt.Horizontal)
+        self.volumebar.setMaximumWidth(100);
 
         playbarLayout.addWidget(volumeLabel)
-        playbarLayout.addWidget(volumebar)
+        playbarLayout.addWidget(self.volumebar)
 
         self.layout.addLayout(playbarLayout)
 
     def createStatusbar(self):
         statusbar = QStatusBar()
-        statusbar.showMessage('salve salve')
+        stats = self.mpdmng.stats()
+        statusbar.showMessage('%s artists | %s albums | %s songs' % (stats['artists'], stats['albums'], stats['songs']))
         self.layout.addWidget(statusbar)
     
     #signals
