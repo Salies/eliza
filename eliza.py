@@ -8,25 +8,24 @@ from eliza.bkread import Booker
 
 class Manager(QObject):
     def __init__(self, bkrdir):
-        print()
+        print('bkrdir: ' + bkrdir)
+        self.booker = Booker(bkrdir)
+    
+    def initApp(self, mainwindow):
+        self.mainwindow = mainwindow # recieves the window later on, starts operating with it
 
-#TODO: pass booker stuff to a manager class that deals with the ui(?)
+        print('iniciando as operacoes')
+        self.mainwindow.artists.fill(self.booker.getArtists())
 
 app = QApplication([])
+
 config = configparser.ConfigParser()
 config.read('eliza.conf')
 
-booker = Booker(config['dir']['booker'])
+manager = Manager(config['dir']['booker'])
+window = MainWindow(manager)
 
-#print(booker.getArtists())
-
-#print(booker.getArtistAlbums('Ok Goodnight'))
-
-#print(booker.getAlbumTracks(75) )
-
-window = MainWindow()
-
-window.artists.fill(booker.getArtists())
+manager.initApp(window)
 
 window.show()
 app.exec()

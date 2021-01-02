@@ -6,7 +6,7 @@ from PyQt5.QtCore import *
 from eliza.widgets import *
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, manager):
         super().__init__()
 
         self.setWindowTitle('Eliza')
