@@ -1,4 +1,5 @@
 #TODO optimze imports (?)
+#TODO privatize functions (?)
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -30,12 +31,18 @@ class MainWindow(QMainWindow):
         self.createGridList()
         self.createPlaybar()
         self.createStatusbar()
+        self.initSignals()
 
+    def initSignals(self):
         self.artists.fill(self.bkr.getArtists())
         self.artists.itemClicked.connect(self.fillAlbums)
+        self.albums.itemClicked.connect(self.fillTracks)
 
     def fillAlbums(self, item):
         self.albums.fill(self.bkr.getArtistAlbums(item.text()))
+
+    def fillTracks(self, item):
+        self.songs.fill(self.bkr.getAlbumTracks(item.data(Qt.UserRole)))
 
     def createGridList(self):
         libraryLayout = QHBoxLayout()
@@ -57,7 +64,7 @@ class MainWindow(QMainWindow):
 
         self.artists = ArtistList()
         self.albums = AlbumList()
-        songs = QListWidget()
+        self.songs = TrackList()
         queueWidget = QListWidget()
 
         artistsLayout.addWidget(artistsLabel)
@@ -67,7 +74,7 @@ class MainWindow(QMainWindow):
         albumsLayout.addWidget(self.albums)
 
         songsLayout.addWidget(songsLabel)
-        songsLayout.addWidget(songs)
+        songsLayout.addWidget(self.songs)
 
         queueLayout.addWidget(queueLabel)
         queueLayout.addWidget(queueWidget)
@@ -79,9 +86,6 @@ class MainWindow(QMainWindow):
         caLayout.addWidget(coverart)
         npLayout.addLayout(caLayout)
         npLayout.addLayout(queueLayout)
-
-        self.albums.addItem("All Albums")
-        songs.addItem("1. Kuolevainen")
         
         libraryLayout.addLayout(artistsLayout)
         libraryLayout.addLayout(albumsLayout)

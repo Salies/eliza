@@ -8,7 +8,7 @@ from eliza.mainwindow import MainWindow
 app = QApplication([])
 
 config = configparser.ConfigParser()
-config.read('eliza.conf')
+config.read('eliza.conf') #TODO: ADD ERROR IF FILE DOESN'T EXIST
 
 window = MainWindow(config['dir']['booker'])
 
