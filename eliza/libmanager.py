@@ -2,6 +2,7 @@ import sqlite3
 from pathlib import Path
 from PyQt5.QtWidgets import QListWidgetItem
 from PyQt5.QtCore import Qt
+from os import remove
 
 class LibMng:
     def __init__(self, path, mpdPath):
@@ -49,3 +50,5 @@ class LibMng:
 
     def __del__(self):
         self.__con.close()
+        #if(Path('cover.bin').is_file()):
+        #    remove('cover.bin')

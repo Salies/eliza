@@ -1,8 +1,9 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QLabel, QPushButton, QSlider, QStatusBar
+from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QListWidgetItem, QLabel, QPushButton, QSlider, QStatusBar
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtCore import Qt, QSize
 from eliza.libmanager import LibMng
 from eliza.mpdclient import MpdClient
+from pathlib import Path
 
 class MainWindow(QMainWindow):
     def __init__(self, libPath, mpdPath):
@@ -35,6 +36,7 @@ class MainWindow(QMainWindow):
         self.__createGridList()
         self.__createNowPlaying()
         self.__createControlBar()
+        self.__createStatusBar()
 
     def __createGridList(self):
         libraryLayout = QHBoxLayout()
@@ -78,6 +80,8 @@ class MainWindow(QMainWindow):
         auxLayout.addWidget(QLabel("Now Playing"))
 
         self.__coverArt.setPixmap(QPixmap('qrc/img/artplaceholder.jpg'))
+        if(Path('cover.bin').is_file()):
+            self.__coverArt.setPixmap(QPixmap('cover.bin'))
         self.__coverArt.setMaximumSize(300, 300)
         self.__coverArt.setScaledContents(True)
         
@@ -88,6 +92,8 @@ class MainWindow(QMainWindow):
 
         auxLayout = None
         auxLayout = QVBoxLayout()
+
+        self.__queueList.itemDoubleClicked.connect(self.__queueClicked)
 
         auxLayout.addWidget(QLabel("Queue"))
         auxLayout.addWidget(self.__queueList)
@@ -117,13 +123,18 @@ class MainWindow(QMainWindow):
         self.__shufButton.setIcon(QIcon('qrc/btn/shuffle.png'))
         self.__reptButton.setIcon(QIcon('qrc/btn/repeat.png'))
 
+        self.__playButton.clicked.connect(self.__mpd.pause)
+
         playbarLayout.addWidget(self.__backButton)
         playbarLayout.addWidget(self.__playButton)
         playbarLayout.addWidget(self.__skipButton)
 
         playbarLayout.addLayout(seekLayout)
 
+        self.__volBar.setMaximum(100)
         self.__volBar.setMaximumWidth(100)
+        self.__volBar.setValue(self.__mpd.volume())
+        self.__volBar.valueChanged.connect(self.__mpd.setVolume)
 
         seekLayout.addWidget(self.__seekBar)
         seekLayout.addWidget(self.__songTime)
@@ -136,6 +147,13 @@ class MainWindow(QMainWindow):
         self.__centralLayout.addLayout(playbarLayout)
         return
 
+    def __createStatusBar(self):
+        s = self.__mpd.stats()
+        msg = '%s artists | %s albums | %s tracks' % (s.get('artists'), s.get('albums'), s.get('songs'))
+        self.__statusBar.showMessage(msg)
+        self.__centralLayout.addWidget(self.__statusBar)
+        return
+
     #SLOTS
     def __fillAlbums(self, item):
         self.__mng.setAlbums(item.text(), self.__albumList)
@@ -145,6 +163,13 @@ class MainWindow(QMainWindow):
 
     def __trackClicked(self, item):
         tList = []
+        auxItem = None
         for i in range(0, self.__trackList.count()):
+            auxItem = QListWidgetItem(self.__trackList.item(i).text())
+            auxItem.setData(Qt.UserRole, i)
+            self.__queueList.addItem(auxItem)
             tList.append(self.__trackList.item(i).data(Qt.UserRole))
-        self.__mpd.playAlbum(tList.index(item.data(Qt.UserRole)), tList)
+        self.__mpd.playAlbum(tList.index(item.data(Qt.UserRole)), tList, self.__coverArt)
+
+    def __queueClicked(self, item):
+        self.__mpd.justPlay(item.data(Qt.UserRole))
