@@ -1,13 +1,12 @@
 import musicpd
 from PyQt5.QtWidgets import QLabel
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import Qt
 
 class MpdClient:
     def __init__(self):
         self.__client = musicpd.MPDClient() 
         self.__client.connect()
-        self.__client.update()
-        print(self.__client.mpd_version)
 
     def stats(self):
         return self.__client.stats()
@@ -20,6 +19,12 @@ class MpdClient:
 
     def pause(self):
         self.__client.pause()
+
+    def next(self):
+        self.__client.next()
+    
+    def previous(self):
+        self.__client.previous()
     
     def playAlbum(self, sel, list, label):
         self.__client.command_list_ok_begin()
@@ -51,7 +56,13 @@ class MpdClient:
                 cover.write(art['data'])
 
         pix = QPixmap('cover.bin')
-        label.setPixmap(pix)
+        label.setPixmap(pix.scaled(300, 300, Qt.KeepAspectRatio, Qt.SmoothTransformation))
+
+    def elasped(self):
+        return int(float(self.__client.status().get('elapsed')))
+
+    def duration(self):
+        return int(float(self.__client.status().get('duration')))
 
     def __del__(self):
         self.__client.disconnect()
